@@ -2,6 +2,8 @@
 var canvas = document.getElementById("renderCanvas"); // Get the canvas element 
 var engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
 
+
+
 var createScene = function () {
 
     // Create the scene space
@@ -24,6 +26,7 @@ var createScene = function () {
     sphere2.position.y = 2;
     sphere2.position.x = 2;
 
+    /*
     var animationBox = new BABYLON.Animation("myAnimation", "scaling.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
 
     // An array with all animation keys
@@ -53,6 +56,7 @@ var createScene = function () {
     box1.animations.push(animationBox);
 
     scene.beginAnimation(box1, 0, 100, true);
+    */
 
     return scene;
 };
