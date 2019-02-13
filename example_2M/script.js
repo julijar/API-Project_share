@@ -25,6 +25,7 @@ var createScene = function () {
     sphere.position.y = 2;
     sphere2.position.y = 2;
     sphere2.position.x = 2;
+    
 
     /*
     var animationBox = new BABYLON.Animation("myAnimation", "scaling.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
