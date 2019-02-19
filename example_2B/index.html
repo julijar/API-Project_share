@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var createScene = function () {
+        	var scene = new BABYLON.Scene(engine);
+        
+        	// Setup environment
+        	var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 90, BABYLON.Vector3.Zero(), scene);
+        	camera.lowerBetaLimit = 0.1;
+        	camera.upperBetaLimit = (Math.PI / 2) * 0.9;
+        	camera.lowerRadiusLimit = 30;
+        	camera.upperRadiusLimit = 150;
+        	camera.attachControl(canvas, true);
+        
+        	var light = new BABYLON.HemisphericLight("dir01", new BABYLON.Vector3(0, 1, 0), scene);
+        	light.intensity = 0.1;
+        
+        	// spot
+        	var spotLight = new BABYLON.SpotLight("spot02", new BABYLON.Vector3(30, 40, 30),
+        		new BABYLON.Vector3(-1, -2, -1), 1.1, 16, scene);
+        	spotLight.projectionTexture = new BABYLON.Texture("textures/co.png", scene);
+        	spotLight.setDirectionToTarget(BABYLON.Vector3.Zero());
+        	spotLight.intensity = 1.5;
+        
+        	// Ground
+        	var ground = BABYLON.Mesh.CreateGroundFromHeightMap("ground", "textures/heightMap.png", 100, 100, 100, 0, 10, scene, false);
+        	var groundMaterial = new BABYLON.StandardMaterial("ground", scene);
+        	groundMaterial.diffuseTexture = new BABYLON.Texture("textures/ground.jpg", scene);
+        	groundMaterial.diffuseTexture.uScale = 6;
+        	groundMaterial.diffuseTexture.vScale = 6;
+        	groundMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+        	ground.position.y = -2.05;
+        	ground.material = groundMaterial;
+        
+        	// Animations
+        	var alpha = 0;
+        	scene.registerBeforeRender(function () {
+        		spotLight.position = new BABYLON.Vector3(Math.cos(alpha) * 60, 40, Math.sin(alpha) * 60);
+        		spotLight.setDirectionToTarget(BABYLON.Vector3.Zero());
+        		alpha += 0.01;
+        	});
+        
+        	return scene;
+        }
+        
+        
+        var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+        var scene = createScene();
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
