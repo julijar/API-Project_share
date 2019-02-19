@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        
+        var createScene = function() {
+            var scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color3( .1, 0, 0);
+        
+            // camera
+            var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, new BABYLON.Vector3(0, .5, 0), scene);
+            camera.setPosition(new BABYLON.Vector3(-5, -5, -10));
+            camera.attachControl(canvas, true);
+        
+            // lights
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 0.5, 0), scene);
+            light.intensity = 1.0;
+            light.groundColor= BABYLON.Color3.Gray();
+        
+        /*
+            var spot = new BABYLON.SpotLight("spot", new BABYLON.Vector3(25, 15, -10), new BABYLON.Vector3(-1, -0.8, 1), 15, 1, scene);
+            spot.diffuse = new BABYLON.Color3(1, 1, 1);
+            spot.specular = new BABYLON.Color3(0, 0, 0);
+            spot.intensity = 0.8;
+        */
+        
+            // material
+            var mat = new BABYLON.StandardMaterial("mat1", scene);
+            mat.alpha = 1.0;
+            mat.diffuseColor = new BABYLON.Color3(0.8, 0.5, 1.0);
+            mat.backFaceCulling = false;
+            //mat.wireframe = true;
+            var mater1 = new BABYLON.StandardMaterial("texture1", scene);
+            // mater1.diffuseTexture = new BABYLON.Texture("14sm02.jpg", scene);
+        
+        //---------------------------------------------------------------------------------
+            // show axis
+            var showAxis = function(size) {
+            var makeTextPlane = function(text, color, size) {
+            var dynamicTexture = new BABYLON.DynamicTexture("DynamicTexture", 50, scene, true);
+            dynamicTexture.hasAlpha = true;
+            dynamicTexture.drawText(text, 5, 40, "bold 36px Arial", color , "transparent", true);
+            var plane = new BABYLON.Mesh.CreatePlane("TextPlane", size, scene, true);
+            plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+            plane.material = new BABYLON.StandardMaterial("TextPlaneMaterial", scene);
+            plane.material.backFaceCulling = false;
+            plane.material.specularColor = new BABYLON.Color3(0, 0, 0);
+            plane.material.diffuseTexture = dynamicTexture;
+            return plane;
+            };
+        
+            var ticks = function(axis, size) {
+                var axis_ticks = [];
+                var short_tick_len = 1.0 / 8;
+                var long_tick_len = 1.0 / 4;
+                switch (axis) {
+                case "x":
+                    // Short ticks
+                    for(x = 0.5; x < size; x += 1.0) {
+                        line = [new BABYLON.Vector3(x, 0, -short_tick_len / 2), new BABYLON.Vector3(x, 0, short_tick_len / 2.0)];
+                        axis_ticks.push(line);
+                    }
+                    // Long ticks
+                    tick_len = 1.0 / 4;
+                    for(x = 1; x < size; x += 1.0) {
+                        line = [new BABYLON.Vector3(x, 0, -long_tick_len / 2), new BABYLON.Vector3(x, 0, long_tick_len / 2)];
+                        axis_ticks.push(line);
+                    }
+                    break;
+                case "y":
+                    // Short ticks
+                    tick_len = 1.0 / 4;
+                    for(y = 0.5; y < size; y += 1.0) {
+                        line = [new BABYLON.Vector3(-short_tick_len / 2, y, 0), new BABYLON.Vector3(short_tick_len / 2, y, 0)];
+                        axis_ticks.push(line);
+                    }
+                    // Long ticks
+                    tick_len = 1.0 / 2;
+                    for(y = 1; y < size; y += 1.0) {
+                        line = [new BABYLON.Vector3(-long_tick_len / 2, y, 0), new BABYLON.Vector3(long_tick_len / 2, y, 0)];
+                        axis_ticks.push(line);
+                    }
+                    break;
+                case "z":
+                    tick_len = 1.0 / 4;
+                    for(z = 0.5; z < size; z += 1.0) {
+                        line = [new BABYLON.Vector3(-short_tick_len / 2, 0, z), new BABYLON.Vector3(short_tick_len / 2, 0, z)];
+                        axis_ticks.push(line);
+                    }
+                    // Long ticks
+                    tick_len = 1.0 / 2;
+                    for(z = 1; z < size; z += 1.0) {
+                        line = [new BABYLON.Vector3(-long_tick_len / 2, 0, z), new BABYLON.Vector3(long_tick_len / 2, 0, z)];
+                        axis_ticks.push(line);
+                    }
+                    break;
+                }
+                return axis_ticks;
+            };
+            
+            var axisX = BABYLON.Mesh.CreateLines("axisX", [ 
+                new BABYLON.Vector3.Zero(), new BABYLON.Vector3(size, 0, 0), new BABYLON.Vector3(size * 0.95, 0.05 * size, 0), 
+                new BABYLON.Vector3(size, 0, 0), new BABYLON.Vector3(size * 0.95, -0.05 * size, 0)
+                ], scene);
+            axisX.color = new BABYLON.Color3(1, 0, 0);
+            var axisX_ticks = BABYLON.MeshBuilder.CreateLineSystem("axisX_ticks", { lines: ticks("x", size) }, scene);
+            axisX_ticks.color = axisX.color;
+            var xChar = makeTextPlane("X", "red", size / 10);
+            xChar.position = new BABYLON.Vector3(0.9 * size, -0.05 * size, 0);
+        
+            var axisY = BABYLON.Mesh.CreateLines("axisY", [
+                new BABYLON.Vector3.Zero(), new BABYLON.Vector3(0, size, 0), new BABYLON.Vector3( -0.05 * size, size * 0.95, 0), 
+                new BABYLON.Vector3(0, size, 0), new BABYLON.Vector3( 0.05 * size, size * 0.95, 0)
+                ], scene);
+            axisY.color = new BABYLON.Color3(0, 1, 0);
+            var axisY_ticks = BABYLON.MeshBuilder.CreateLineSystem("axisY_ticks", { lines: ticks("y", size) }, scene);
+            axisY_ticks.color = axisY.color;
+            var yChar = makeTextPlane("Y", "green", size / 10);
+            yChar.position = new BABYLON.Vector3(0, 0.9 * size, -0.05 * size);
+            var axisZ = BABYLON.Mesh.CreateLines("axisZ", [
+                new BABYLON.Vector3.Zero(), new BABYLON.Vector3(0, 0, size), new BABYLON.Vector3( 0 , -0.05 * size, size * 0.95),
+                new BABYLON.Vector3(0, 0, size), new BABYLON.Vector3( 0, 0.05 * size, size * 0.95)
+                ], scene);
+            axisZ.color = new BABYLON.Color3(0, 0, 1);
+            var axisZ_ticks = BABYLON.MeshBuilder.CreateLineSystem("axisZ_ticks", { lines: ticks("z", size) }, scene);
+            axisZ_ticks.color = axisZ.color;
+            var zChar = makeTextPlane("Z", "blue", size / 10);
+            zChar.position = new BABYLON.Vector3(0, 0.05 * size, 0.9 * size);
+            };
+        
+        //---------------------------------------------------------------------------------
+        
+        /*    
+            // shape
+            var shape = [
+            new BABYLON.Vector3(0, 0, 0),
+            new BABYLON.Vector3(0, 1, 0),
+            new BABYLON.Vector3(1, 1, 0),
+            new BABYLON.Vector3(1, 0.8, 0),
+            new BABYLON.Vector3(0.2, 0.8, 0),
+            new BABYLON.Vector3(0.2, 0, 0),
+            new BABYLON.Vector3(0, 0, 0),
+            
+            ];
+            shape.push(shape[0]);
+            
+            //var shapeline = BABYLON.Mesh.CreateLines("sl", shape, scene);
+            //shapeline.color = BABYLON.Color3.Green();
+            
+            var path = [new BABYLON.Vector3(0, 0, 0.5),
+                new BABYLON.Vector3(0, 10, 0.5),
+                new BABYLON.Vector3(10, 10, 0.5),
+        
+            ];
+            
+            var extruded = BABYLON.Mesh.ExtrudeShape("extruded", shape, path, 1, 0, 0, scene);
+            extruded.material = mater1;
+            
+            var extruded2 = BABYLON.Mesh.ExtrudeShape("extruded", shape, path, 1,0,0, scene);
+            extruded2.material = mat;
+            extruded2.position.x = 9.1;
+            extruded2.position.y = 10.99;
+            extruded2.rotation = new BABYLON.Vector3(0, 0, Math.PI);
+        */    
+        
+            showAxis(5);
+        
+            return scene;
+        
+        };
+        
+        
+        
+        var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+        var scene = createScene();
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
