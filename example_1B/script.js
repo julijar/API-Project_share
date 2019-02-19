@@ -8,7 +8,7 @@ var createScene = function () {
     var light = new BABYLON.HemisphericLight();
 
     //Adding an Arc Rotate Camera
-    var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 10, BABYLON.Vector3.Zero(), scene);
+    var camera = new BABYLON.ArcRotateCamera("Camera", 2, 1.8, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, false);
 
     // The first parameter can be used to specify which mesh to import. Here we import all meshes

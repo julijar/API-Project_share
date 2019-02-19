@@ -146,26 +146,26 @@
             axisX.color = new BABYLON.Color3(1, 0, 0);
             var axisX_ticks = BABYLON.MeshBuilder.CreateLineSystem("axisX_ticks", { lines: ticks("x", size) }, scene);
             axisX_ticks.color = axisX.color;
-            var xChar = makeTextPlane("X", "red", size / 10);
+            var xChar = makeTextPlane("X", "green", size / 5);
             xChar.position = new BABYLON.Vector3(0.9 * size, -0.05 * size, 0);
         
             var axisY = BABYLON.Mesh.CreateLines("axisY", [
                 new BABYLON.Vector3.Zero(), new BABYLON.Vector3(0, size, 0), new BABYLON.Vector3( -0.05 * size, size * 0.95, 0), 
                 new BABYLON.Vector3(0, size, 0), new BABYLON.Vector3( 0.05 * size, size * 0.95, 0)
                 ], scene);
-            axisY.color = new BABYLON.Color3(0, 1, 0);
+            axisY.color = new BABYLON.Color3(1, 0, 0);
             var axisY_ticks = BABYLON.MeshBuilder.CreateLineSystem("axisY_ticks", { lines: ticks("y", size) }, scene);
             axisY_ticks.color = axisY.color;
-            var yChar = makeTextPlane("Y", "green", size / 10);
+            var yChar = makeTextPlane("Y", "green", size / 5);
             yChar.position = new BABYLON.Vector3(0, 0.9 * size, -0.05 * size);
             var axisZ = BABYLON.Mesh.CreateLines("axisZ", [
                 new BABYLON.Vector3.Zero(), new BABYLON.Vector3(0, 0, size), new BABYLON.Vector3( 0 , -0.05 * size, size * 0.95),
                 new BABYLON.Vector3(0, 0, size), new BABYLON.Vector3( 0, 0.05 * size, size * 0.95)
                 ], scene);
-            axisZ.color = new BABYLON.Color3(0, 0, 1);
+            axisZ.color = new BABYLON.Color3(1, 0, 0);
             var axisZ_ticks = BABYLON.MeshBuilder.CreateLineSystem("axisZ_ticks", { lines: ticks("z", size) }, scene);
             axisZ_ticks.color = axisZ.color;
-            var zChar = makeTextPlane("Z", "blue", size / 10);
+            var zChar = makeTextPlane("Z", "green", size / 5);
             zChar.position = new BABYLON.Vector3(0, 0.05 * size, 0.9 * size);
             };
         
