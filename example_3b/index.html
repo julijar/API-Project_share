@@ -1,78 +1,143 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-        <title>Bahr's Babylon.js sample code</title>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-        <!-- Babylon.js -->
-        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
-        <script src="https://preview.babylonjs.com/ammo.js"></script>
-        <script src="https://preview.babylonjs.com/cannon.js"></script>
-        <script src="https://preview.babylonjs.com/Oimo.js"></script>
-        <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
-        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
-        <script src="https://preview.babylonjs.com/babylon.js"></script>
-        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
-        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
-        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
-        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
-        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <title>Babylon.js sample code</title>
 
-        <style>
-            html, body {
-                overflow: hidden;
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
+    <!-- Babylon.js -->
+    <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+    <script src="https://preview.babylonjs.com/ammo.js"></script>
+    <script src="https://preview.babylonjs.com/cannon.js"></script>
+    <script src="https://preview.babylonjs.com/Oimo.js"></script>
+    <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
+    <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+    <script src="https://preview.babylonjs.com/babylon.js"></script>
+    <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+    <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+    <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+    <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+    <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+    <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+    <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
 
-            #renderCanvas {
-                width: 100%;
-                height: 100%;
-                touch-action: none;
-            }
-        </style>
-    </head>
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+
 <body>
     <canvas id="renderCanvas"></canvas>
     <script>
         var canvas = document.getElementById("renderCanvas");
 
+        var Ring = function () {
+            this.center = null;
+            this.tubes = [];
+            this.angle = 0;
+
+            this.addTube = function (points) {
+                var tube = BABYLON.Mesh.CreateTube(
+                    "tube",
+                    points, 1, 3, null, BABYLON.Mesh.CAP_ALL, this.center.getScene(), false, BABYLON.Mesh.FRONTSIDE);
+                //tube.convertToFlatShadedMesh();
+                tube.parent = this.center;
+                this.tubes.push(tube);
+            }
+
+        };
+
+        var getPointsInRange = function (nb, width, range) {
+            var points = [];
+            var alpha = 0;
+
+            for (var i = 0; i < nb; i++) {
+                if (alpha >= range.min && alpha <= range.max) {
+                    points.push(new BABYLON.Vector3(width * Math.cos(alpha), 0, width * Math.sin(alpha)));
+                }
+                alpha += Math.PI * 2 / nb;
+            }
+            return points;
+        };
+
         var createScene = function () {
+
+            // This creates a basic Babylon Scene object (non-mesh)
             var scene = new BABYLON.Scene(engine);
 
-        
-            //Adding a light
-            var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(30, 20, 100), scene);
-        
-            //Adding an Arc Rotate Camera
-            var camera = new BABYLON.ArcRotateCamera("Camera", 2, 0.8, 100, BABYLON.Vector3.Zero(), scene);
-            camera.attachControl(canvas, false);
-        
-            // The first parameter can be used to specify which mesh to import. Here we import all meshes
-            BABYLON.SceneLoader.ImportMesh("", "scenes/", "skull.babylon", scene, function (newMeshes) {
-                // Set the target of the camera to the first imported mesh
-                camera.target = newMeshes[0];
-            });
-        
-            // Move the light with the camera
+            var camera = new BABYLON.ArcRotateCamera("camera1", -Math.PI / 2, 0, 70, BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(canvas, true);
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+
+
+            // Create a ring 
+            var createRing = function (nb, width, ranges) {
+                var ring = new Ring();
+                ring.center = BABYLON.Mesh.CreateBox("center", 1, scene);
+
+                for (var r = 0; r < ranges.length; r++) {
+                    ring.addTube(getPointsInRange(nb, width, ranges[r]));
+                }
+                return ring;
+            }
+
+            var nbRings = 10;
+            var w = 5;
+            var angle = 0.005;
+
+            var materials = [];
+
+            var mat1 = new BABYLON.StandardMaterial("", scene);
+            mat1.diffuseColor = BABYLON.Color3.White();
+
+
+            var mat2 = new BABYLON.StandardMaterial("", scene);
+            mat2.diffuseColor = BABYLON.Color3.Black();
+            mat2.specularColor = BABYLON.Color3.Black();
+            materials.push(mat1, mat2);
+
+            var rings = [];
+            for (var c = 1; c <= nbRings; c++) {
+                var ring = createRing(30 * c, w + 1.5 * c, [
+                    { min: Math.PI / 4, max: 3 * Math.PI / 4 },
+                    { min: 5 * Math.PI / 4, max: 7 * Math.PI / 4 }
+                ]);
+                ring.angle = angle * c;
+                ring.tubes.forEach(function (t) {
+                    t.material = materials[c % 2];
+                });
+
+                rings.push(ring);
+            }
+
             scene.registerBeforeRender(function () {
-                light.position = camera.position;
+                rings.forEach(function (ring) {
+                    ring.center.rotation.y += ring.angle;
+                });
             });
-        
+
+
             return scene;
-        }
-         
-       
-        
+
+        };
+
         var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
         var scene = createScene();
-        
 
         engine.runRenderLoop(function () {
             if (scene) {
@@ -86,4 +151,5 @@
         });
     </script>
 </body>
+
 </html>
