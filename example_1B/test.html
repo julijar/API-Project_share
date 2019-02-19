@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-        <title>Bahr's Babylon.js sample code</title>
+        <title>Babylon.js sample code</title>
 
         <!-- Babylon.js -->
         <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
@@ -43,47 +43,48 @@
     <script>
         var canvas = document.getElementById("renderCanvas");
 
-        var createScene = function () {
-            var scene = new BABYLON.Scene(engine);
+        // You have to create a function called createScene. This function must return a BABYLON.Scene object
+        // You can reference the following variables: scene, canvas
+        // You must at least define a camera
+        
+        var createScene = function (engine) {
+    var scene = new BABYLON.Scene(engine);
+    var camera = new BABYLON.ArcRotateCamera("Camera", -2.5, 1.0, 200, new BABYLON.Vector3(0, 5, 0), scene);
+    camera.attachControl(canvas, true);
 
-        
-            //Adding a light
-            var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(30, 20, 100), scene);
-        
-            //Adding an Arc Rotate Camera
-            var camera = new BABYLON.ArcRotateCamera("Camera", 2, 0.8, 100, BABYLON.Vector3.Zero(), scene);
-            camera.attachControl(canvas, false);
-        
-            // The first parameter can be used to specify which mesh to import. Here we import all meshes
-            BABYLON.SceneLoader.ImportMesh("", "scenes/", "skull.babylon", scene, function (newMeshes) {
-                // Set the target of the camera to the first imported mesh
-                camera.target = newMeshes[0];
-            });
-        
-            // Move the light with the camera
-            scene.registerBeforeRender(function () {
-                light.position = camera.position;
-            });
-        
-            return scene;
+    scene.createDefaultLight();
+
+    var configureFur = function (mesh) {
+        var fur = new BABYLON.FurMaterial("fur", scene);
+        fur.furLength = 0;
+        fur.furAngle = 0;
+        fur.furColor = new BABYLON.Color3(2, 2, 2);
+        fur.diffuseTexture = mesh.material.diffuseTexture;
+        fur.furTexture = BABYLON.FurMaterial.GenerateTexture("furTexture", scene);
+        fur.furSpacing = 6;
+        fur.furDensity = 20;
+        fur.furSpeed = 300;
+        fur.furGravity = new BABYLON.Vector3(0, -1, 0);
+
+        mesh.material = fur;
+
+        var quality = 30; // It is enougth
+        var shells = BABYLON.FurMaterial.FurifyMesh(mesh, quality);
+
+        // Special for bunny (ears)
+        for (var i = 0; i < shells.length; i++) {
+            shells[i].material.backFaceCulling = false;
         }
-         
-       
-        
-        var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
-        var scene = createScene();
-        
+    }
 
-        engine.runRenderLoop(function () {
-            if (scene) {
-                scene.render();
-            }
-        });
+    BABYLON.SceneLoader.Append("/scenes/", "Rabbit.babylon", scene, function () {
+        scene.activeCamera = camera;
 
-        // Resize
-        window.addEventListener("resize", function () {
-            engine.resize();
-        });
+        configureFur(scene.meshes[1]);
+    });
+
+    return scene;
+};
     </script>
 </body>
 </html>

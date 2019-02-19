@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-        <title>Bahr's Babylon.js sample code</title>
+        <title>Babylon.js sample code</title>
 
         <!-- Babylon.js -->
         <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
@@ -45,13 +45,12 @@
 
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
-
         
             //Adding a light
-            var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(30, 20, 100), scene);
+            var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(20, 20, 100), scene);
         
             //Adding an Arc Rotate Camera
-            var camera = new BABYLON.ArcRotateCamera("Camera", 2, 0.8, 100, BABYLON.Vector3.Zero(), scene);
+            var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, false);
         
             // The first parameter can be used to specify which mesh to import. Here we import all meshes
@@ -67,12 +66,9 @@
         
             return scene;
         }
-         
-       
         
         var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
         var scene = createScene();
-        
 
         engine.runRenderLoop(function () {
             if (scene) {
