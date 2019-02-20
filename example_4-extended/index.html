@@ -1,9 +1,26 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-
+<html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <title>Babylon Template</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/gltf_validator.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
 
         <style>
             html, body {
@@ -20,23 +37,160 @@
                 touch-action: none;
             }
         </style>
-        <script
-            src="https://code.jquery.com/jquery-3.3.1.min.js"
-            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-            crossorigin="anonymous">
-        </script>
-        <script src="https://cdn.babylonjs.com/babylon.js"></script>
-        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-        <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
     </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
 
-   <body>
+        // create babylon scene
+        var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
+        
+            // scene camera
+            var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, new BABYLON.Vector3(0,0,5), scene);
+            camera.attachControl(canvas, true);
+            camera.applyGravity = true;
+            camera.setTarget(new BABYLON.Vector3(0, 0, 0));
+        
+            // scene light
+            var light = new BABYLON.DirectionalLight("dir02", new BABYLON.Vector3(0.2, -1, 0), scene);
+            light.position = new BABYLON.Vector3(0, 80, 0);
+        
+            // Material for spheres
+            var materialAmiga = new BABYLON.StandardMaterial("amiga", scene);
+            materialAmiga.diffuseTexture = new BABYLON.Texture("textures/amiga.jpg", scene);
+            materialAmiga.emissiveColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+            materialAmiga.diffuseTexture.uScale = 5;
+            materialAmiga.diffuseTexture.vScale = 5;
 
+            var materialBlue = new BABYLON.StandardMaterial("amiga", scene);
+            materialBlue.diffuseTexture = new BABYLON.Texture("textures/blue.jpg", scene);
+            materialBlue.emissiveColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+            materialBlue.diffuseTexture.uScale = 5;
+            materialBlue.diffuseTexture.vScale = 5;
+        
+            var materialAmiga2 = new BABYLON.StandardMaterial("amiga", scene);
+            materialAmiga2.diffuseTexture = new BABYLON.Texture("textures/amiga.jpg", scene);
+            materialAmiga2.emissiveColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+        
+            // Shadows
+            var shadowGenerator = new BABYLON.ShadowGenerator(2048, light);
+        
+            // Physics
+            scene.enablePhysics(null, new BABYLON.OimoJSPlugin());
+        
+            // Spheres creation
+            var y = 0;
+            for (var index = 0; index < 100; index++) {
+                var sphere = BABYLON.Mesh.CreateSphere("Sphere0", 16, 3, scene);
+                sphere.material = materialAmiga;
+        
+                sphere.position = new BABYLON.Vector3(Math.random() * 20 - 10, y, Math.random() * 10 - 5);
+        
+                shadowGenerator.addShadowCaster(sphere);
+        
+                sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1 }, scene);
+         
+                y += 2;
+            }
+        
+        
+            // shadow properties
+            shadowGenerator.useBlurExponentialShadowMap = true;
+            shadowGenerator.useKernelBlur = true;
+            shadowGenerator.blurKernel = 32;
+        
+        
+            //material for border and ground
+            var greenMat = new BABYLON.StandardMaterial("greenMat", scene);
+            greenMat.diffuseColor = new BABYLON.Color3(86/255, 244/255, 66/255);
+            greenMat.alpha = 0.8;	
+        
+            // create border and ground
+            var ground = BABYLON.Mesh.CreateBox("Ground", 1, scene);
+            ground.scaling = new BABYLON.Vector3(100, 1, 100);
+            ground.position.y = -10.0;
+            ground.checkCollisions = true;
+            ground.material = greenMat;
+        
+            var border0 = BABYLON.Mesh.CreateBox("border0", 1, scene);
+            border0.scaling = new BABYLON.Vector3(1, 30, 100);
+            border0.position.x = -50.0;
+            border0.checkCollisions = true;
+            border0.material = greenMat;
+        
+            var border1 = BABYLON.Mesh.CreateBox("border1", 1, scene);
+            border1.scaling = new BABYLON.Vector3(1, 30, 100);
+            border1.position.x = 50.0;
+            border1.checkCollisions = true;
+        
+            var border2 = BABYLON.Mesh.CreateBox("border2", 1, scene);
+            border2.scaling = new BABYLON.Vector3(100, 30, 1);
+            border2.position.z = 50.0;
+            border2.checkCollisions = true;
+        
+            var border3 = BABYLON.Mesh.CreateBox("border3", 1, scene);
+            border3.scaling = new BABYLON.Vector3(100, 30, 1);
+            border3.position.z = -50.0;
+            border3.checkCollisions = true;
+        
+            var groundMat = new BABYLON.StandardMaterial("groundMat", scene);
+            groundMat.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+            groundMat.emissiveColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+            groundMat.backFaceCulling = false;
+            ground.material = greenMat;
+            border0.material = greenMat;
+            border1.material = greenMat;
+            border2.material = greenMat;
+            border3.material = greenMat;
+            ground.receiveShadows = true;
+        
+        
+            // set physics
+            ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.5, restitution: 0.7 }, scene);
+            border0.physicsImpostor = new BABYLON.PhysicsImpostor(border0, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+            border1.physicsImpostor = new BABYLON.PhysicsImpostor(border1, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+            border2.physicsImpostor = new BABYLON.PhysicsImpostor(border2, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+            border3.physicsImpostor = new BABYLON.PhysicsImpostor(border3, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+        
+            // event listner for mouse click -> create blue sphere
+            scene.onPointerDown = function (evt) {
+            
+                //do not create when clicking on the border, just when on the ground
+                var pickResult = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { 
+                    return mesh !== border0 && mesh !== border1 && mesh !== border2 && mesh !== border3; 
+                });
 
-    
-    <canvas id="renderCanvas" touch-action="none"></canvas> //touch-action="none" for best results from PEP
+                //check if clicked on the ground
+                if (pickResult.hit) {
+                    var sphere = BABYLON.Mesh.CreateSphere("Sphere0", 16, 3, scene);
+                    sphere.material = materialBlue;
+            
+                    sphere.position = new BABYLON.Vector3(pickResult.pickedPoint.x, 20, pickResult.pickedPoint.z);
+            
+                    shadowGenerator.addShadowCaster(sphere);
+                    sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1 }, scene);
+                }
+            };
 
-    <script src="script.js"></script>
-   </body>
+            return scene;
+        }
+        
+        //add scene to babylon engine
+        var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+        var scene = createScene();
 
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
 </html>
