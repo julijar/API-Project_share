@@ -16,11 +16,10 @@ class Pixel {
     }
 }
 
+//variable declaration
 const canvas = document.getElementById("mainCanvas");
-
 const imageWrapper = document.getElementById("imgWrapper");
 const image1 = document.getElementById("img1");
-
 let invertFlag = true;
 const context = canvas.getContext("2d");
 let image = null;
@@ -136,81 +135,23 @@ var createScene = function () {
 
     // This creates a basic Babylon Scene object (non-mesh)
     var scene = new BABYLON.Scene(engine);
-    /*
-
-    // This creates and positions a free camera (non-mesh)
-    var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
-
-    // This targets the camera to scene origin
-    camera.setTarget(BABYLON.Vector3.Zero());
-
-    // This attaches the camera to the canvas
+   
+    // create camera
+    var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, new BABYLON.Vector3(0,0,5), scene);
     camera.attachControl(canvas, true);
-
-    // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-    var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-
-    // Default intensity is 1. Let's dim the light a small amount
-    light.intensity = 0.7;
-
-    */
-
-   var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, new BABYLON.Vector3(0,0,5), scene);
-   camera.attachControl(canvas, true);
 
    
    // Add lights to the scene
    var light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), scene);
    var light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 1, -1), scene);
 
-	// use jQuery (or normal javascript) to add 
-    // an on click event binding to the button
-    /*
-	$('#button').click(function () {
-		// Our built-in 'sphere' shape. Params: name, subdivs, size, scene
-		//var sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 2, scene);
-		// Move the sphere upward 1/2 its height
-        //sphere.position.y = 1;
-        
-
-        var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter:2}, scene);
-        sphere.position.y = Math.round(Math.random()*100);
-        sphere.position.x = Math.round(Math.random()*100);
-    });
-    */
-
-    // Our built-in 'ground' shape. Params: name, width, depth, subdivs, scene
-   // var ground = BABYLON.Mesh.CreateGround("ground1", 6, 6, 2, scene);
-   //var box1 = BABYLON.Mesh.CreateBox("Box1", 10.0, scene);
-   
-
-   /*
-    var mat = new BABYLON.StandardMaterial("mat1", scene);
-    mat.alpha = 1.0;
-    mat.diffuseColor = new BABYLON.Color3(0.5, 0.5, 1.0);
-
-    
-
-    var rot = (0.5 - Math.random()) / 8;
-    */
-
-
-
+   // add rotation to elements
    scene.registerBeforeRender(function () {
-        //polygon.rotation.y += rot;
-        //polygon.rotation.x += rot / 4;
-
-
         for (var p = 0; p < polygons.length; p++) {
             polygons[p].rotation.y += rotations[p];
             polygons[p].rotation.x += rotations[p] / 4;
         }
     });
-
-
-
-
-
 
     return scene;
 
@@ -221,24 +162,22 @@ var scene = createScene(); //Call the createScene function
 
 // Register a render loop to repeatedly render the scene
 engine.runRenderLoop(function () { 
-    //console.log(animationDoneFlag);
-
+    // render 5 pixel at at one time
     for (var i = 0; i < 5; i++) {
         if (!animationDoneFlag) {
             if (lastPixel < pixelList.length && lastPixel >= 0) {
-               // console.log("daaa");
                 //check if pixels brightness is within the tolerance of pixel that should be drawn
                 if ((pixelList[lastPixel].luma > minLuma && !invertFlag) || (pixelList[lastPixel].luma < minLuma && invertFlag)) {
                     
-    
+                    //create random color based on pixel brightness
                     let hlsColor = pixelList[lastPixel].luma/255;
                     var r, g, b, h, s, l;
                     h = randomColor;
                     s = 1;
                     l = hlsColor*0.8;
-                    console.log("h:" + h + " s:" + s + " l:" + l );
+                    //console.log("h:" + h + " s:" + s + " l:" + l );
     
-    
+                    //render hsl to rgb color
                     if(s == 0){
                         r = g = b = l; // achromatic
                     }else{
@@ -257,40 +196,31 @@ engine.runRenderLoop(function () {
                         g = hue2rgb(p, q, h);
                         b = hue2rgb(p, q, h - 1/3);
                     }
-                    console.log("r:" + r + " g:" + g + " b:" + b );
+                    //console.log("r:" + r + " g:" + g + " b:" + b );
         
-    
-                    //var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter:Math.random()*maxCircleSize*2}, scene);
-                    
                     var sphere = BABYLON.MeshBuilder.CreatePolyhedron("oct", {type: Math.round(Math.random()*15), size: 3}, scene);
                     sphere.convertToFlatShadedMesh();
-                    //polygon.material = mat;
                     
+                    // create polygon for pixel
                     sphere.position.y = (pixelList[lastPixel].posY - yCorrection)*-1;
                     sphere.position.x = pixelList[lastPixel].posX - xCorrection;
                     sphere.position.z = hlsColor*70;
     
-                    /*
-                    var material = new BABYLON.StandardMaterial(scene);
-                    material.alpha = 1;
-                    material.diffuseColor = new BABYLON.Color3(r, g, b);
-                    sphere.material = material;
-    
-                    */
-    
+                    // create material for polygons
                     var greenMat = new BABYLON.StandardMaterial("greenMat", scene);
                     greenMat.diffuseColor = new BABYLON.Color3(r, g, b);
                     greenMat.alpha = 0.5;	
                     sphere.material = greenMat;
     
+                    //add to the polygons array
                     polygons.push(sphere);
                     rotations.push((0.5 - Math.random()) / 8);
     
+                    // count visible pixel
                     visibleDots++;
                 } 
                 else {
                     //all pixels are drawn
-                    //animationDoneFlag = true;
                     
                     //calculate number of paths to draw between the pixels
                     if (visibleDots > 0) {
@@ -306,8 +236,6 @@ engine.runRenderLoop(function () {
                     else {
                         animationDoneFlag = true;
                     }
-                   
-    
                 }
     
                 //go to the next pixel
