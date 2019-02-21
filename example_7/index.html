@@ -43,50 +43,141 @@
     <script>
         var canvas = document.getElementById("renderCanvas");
 
+        // create babylon scene
         var createScene = function () {
-        	var scene = new BABYLON.Scene(engine);
+            var scene = new BABYLON.Scene(engine);
         
-        	// Setup environment
-        	var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 90, BABYLON.Vector3.Zero(), scene);
-        	camera.lowerBetaLimit = 0.1;
-        	camera.upperBetaLimit = (Math.PI / 2) * 0.9;
-        	camera.lowerRadiusLimit = 30;
-        	camera.upperRadiusLimit = 150;
-        	camera.attachControl(canvas, true);
+            // scene camera
+            var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, new BABYLON.Vector3(0,0,5), scene);
+            camera.attachControl(canvas, true);
+            camera.applyGravity = true;
+            camera.setTarget(new BABYLON.Vector3(0, 0, 0));
         
-        	var light = new BABYLON.HemisphericLight("dir01", new BABYLON.Vector3(1, 1, 1), scene);
-        	light.intensity = 0.1;
+            // scene light
+            var light = new BABYLON.DirectionalLight("dir02", new BABYLON.Vector3(0.2, -1, 0), scene);
+            light.position = new BABYLON.Vector3(0, 80, 0);
         
-        	// spot
-        	var spotLight = new BABYLON.SpotLight("spot02", new BABYLON.Vector3(3, 40, 30),
-        		new BABYLON.Vector3(-1, -2, -1), 1.1, 16, scene);
-        	spotLight.projectionTexture = new BABYLON.Texture("textures/co.png", scene);
-        	spotLight.setDirectionToTarget(BABYLON.Vector3.Zero());
-        	spotLight.intensity = 1.5;
+            // Material for spheres
+            var materialAmiga = new BABYLON.StandardMaterial("amiga", scene);
+            materialAmiga.diffuseTexture = new BABYLON.Texture("textures/amiga.jpg", scene);
+            materialAmiga.emissiveColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+            materialAmiga.diffuseTexture.uScale = 5;
+            materialAmiga.diffuseTexture.vScale = 5;
+
+            var materialBlue = new BABYLON.StandardMaterial("amiga", scene);
+            materialBlue.diffuseTexture = new BABYLON.Texture("textures/blue.jpg", scene);
+            materialBlue.emissiveColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+            materialBlue.diffuseTexture.uScale = 5;
+            materialBlue.diffuseTexture.vScale = 5;
         
-        	// Ground (I changed the ground position from -2 to -13.05, also the ground color from 2,4,4 to 7,9,1)
-            //I also played wih dimension of the ground texture
-        	var ground = BABYLON.Mesh.CreateGroundFromHeightMap("ground", "textures/heightMap.png", 50, 100, 100, 0, 10, scene, false);
-        	var groundMaterial = new BABYLON.StandardMaterial("ground", scene);
-        	groundMaterial.diffuseTexture = new BABYLON.Texture("textures/ground.jpg", scene);
-        	groundMaterial.diffuseTexture.uScale = 6;
-        	groundMaterial.diffuseTexture.vScale = 6;
-        	groundMaterial.specularColor = new BABYLON.Color3(22, 9, 1);
-        	ground.position.y = -13.05;
-        	ground.material = groundMaterial;
+            var materialAmiga2 = new BABYLON.StandardMaterial("amiga", scene);
+            materialAmiga2.diffuseTexture = new BABYLON.Texture("textures/amiga.jpg", scene);
+            materialAmiga2.emissiveColor = new BABYLON.Color3(0.5, 0.5, 0.5);
         
-        	// Animations
-        	var alpha = 0;
-        	scene.registerBeforeRender(function () {
-        		spotLight.position = new BABYLON.Vector3(Math.cos(alpha) * 6, 4, Math.sin(alpha) * 190);
-        		spotLight.setDirectionToTarget(BABYLON.Vector3.Zero());
-        		alpha += 0.01;
-        	});
+            // Shadows
+            var shadowGenerator = new BABYLON.ShadowGenerator(2048, light);
         
-        	return scene;
+            // Physics
+            scene.enablePhysics(null, new BABYLON.OimoJSPlugin());
+        
+            // Spheres creation
+            var y = 0;
+            for (var index = 0; index < 100; index++) {
+                var sphere = BABYLON.Mesh.CreateSphere("Sphere0", 16, 3, scene);
+                sphere.material = materialAmiga;
+        
+                sphere.position = new BABYLON.Vector3(Math.random() * 20 - 10, y, Math.random() * 10 - 5);
+        
+                shadowGenerator.addShadowCaster(sphere);
+        
+                sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1 }, scene);
+         
+                y += 2;
+            }
+        
+        
+            // shadow properties
+            shadowGenerator.useBlurExponentialShadowMap = true;
+            shadowGenerator.useKernelBlur = true;
+            shadowGenerator.blurKernel = 32;
+        
+        
+            //material for border and ground
+            var greenMat = new BABYLON.StandardMaterial("greenMat", scene);
+            greenMat.diffuseColor = new BABYLON.Color3(86/255, 244/255, 66/255);
+            greenMat.alpha = 0.8;	
+        
+            // create border and ground
+            var ground = BABYLON.Mesh.CreateBox("Ground", 1, scene);
+            ground.scaling = new BABYLON.Vector3(100, 1, 100);
+            ground.position.y = -10.0;
+            ground.checkCollisions = true;
+            ground.material = greenMat;
+        
+            var border0 = BABYLON.Mesh.CreateBox("border0", 1, scene);
+            border0.scaling = new BABYLON.Vector3(1, 30, 100);
+            border0.position.x = -50.0;
+            border0.checkCollisions = true;
+            border0.material = greenMat;
+        
+            var border1 = BABYLON.Mesh.CreateBox("border1", 1, scene);
+            border1.scaling = new BABYLON.Vector3(1, 30, 100);
+            border1.position.x = 50.0;
+            border1.checkCollisions = true;
+        
+            var border2 = BABYLON.Mesh.CreateBox("border2", 1, scene);
+            border2.scaling = new BABYLON.Vector3(100, 30, 1);
+            border2.position.z = 50.0;
+            border2.checkCollisions = true;
+        
+            var border3 = BABYLON.Mesh.CreateBox("border3", 1, scene);
+            border3.scaling = new BABYLON.Vector3(100, 30, 1);
+            border3.position.z = -50.0;
+            border3.checkCollisions = true;
+        
+            var groundMat = new BABYLON.StandardMaterial("groundMat", scene);
+            groundMat.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+            groundMat.emissiveColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+            groundMat.backFaceCulling = false;
+            ground.material = greenMat;
+            border0.material = greenMat;
+            border1.material = greenMat;
+            border2.material = greenMat;
+            border3.material = greenMat;
+            ground.receiveShadows = true;
+        
+        
+            // set physics
+            ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0.5, restitution: 0.7 }, scene);
+            border0.physicsImpostor = new BABYLON.PhysicsImpostor(border0, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+            border1.physicsImpostor = new BABYLON.PhysicsImpostor(border1, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+            border2.physicsImpostor = new BABYLON.PhysicsImpostor(border2, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+            border3.physicsImpostor = new BABYLON.PhysicsImpostor(border3, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+        
+            // event listner for mouse click -> create blue sphere
+            scene.onPointerDown = function (evt) {
+            
+                //do not create when clicking on the border, just when on the ground
+                var pickResult = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { 
+                    return mesh !== border0 && mesh !== border1 && mesh !== border2 && mesh !== border3; 
+                });
+
+                //check if clicked on the ground
+                if (pickResult.hit) {
+                    var sphere = BABYLON.Mesh.CreateSphere("Sphere0", 16, 3, scene);
+                    sphere.material = materialBlue;
+            
+                    sphere.position = new BABYLON.Vector3(pickResult.pickedPoint.x, 20, pickResult.pickedPoint.z);
+            
+                    shadowGenerator.addShadowCaster(sphere);
+                    sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1 }, scene);
+                }
+            };
+
+            return scene;
         }
         
-        
+        //add scene to babylon engine
         var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
         var scene = createScene();
 
