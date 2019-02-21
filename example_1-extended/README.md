@@ -8,7 +8,7 @@ The system needs to be started with some kind of webserver/liveserver/localhost 
 
 ## Built With
 
-* [babylon.JS]https://www.babylonjs.com/) - The 3d framework used
+* [babylon.JS](https://www.babylonjs.com/) - The 3d framework used
 * [jquery PEP](https://github.com/jquery/PEP) - additional framework used
 
 ## Authors
