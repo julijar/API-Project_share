@@ -16,5 +16,5 @@ W = walk forward, S = stop, R = run, A = walk left and D = walk right.
 
 * babylon.JS Animation blending example (https://www.babylonjs-playground.com/#BCU1XR#0)
 
-The main animation comes from the animation blending example on the babylonjs-playground, the guy and user interface got changed.
+The main animation comes from the animation blending example on the babylonjs-playground, the gui and input methods got changed.
 
