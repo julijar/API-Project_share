@@ -1,4 +1,4 @@
-# example_7 
+# example_7 (Physics)
 
 Example 7 showcases the possibilities of using physics in babylon.JS. A three dimensional box is painted on the scene and 100 red-white balls (spheres) are falling from the sky into the open box. When clicking on the surface of the box a blue-white ball is created which hits the ground exactly at the clicked position.
 
