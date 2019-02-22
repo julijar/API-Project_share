@@ -1,10 +1,7 @@
 # example_6 (3D coordinate system)
 
-Example 6 shows a simple 3D coordinate system. A user could change the length of all the axis and also use its own unit for measuring lenght. It can also be used for locating an object.
+Example 6 shows a simple 3D coordinate system. A user could change the length of all the axis and also uses its own unit for measuring the lenght. It can also be used for locating an object.
 
-## Getting Started
-
-The system needs to be started with some kind of webserver/liveserver/localhost in order to load the textures correctly.
 
 ## Built With
 
@@ -19,4 +16,4 @@ The system needs to be started with some kind of webserver/liveserver/localhost 
 
 * babylon.JS Physics example (https://www.babylonjs-playground.com/#13XUOM#1)
 
-The example is based on the babylonjs-playground's, simple changes got made on the axis length and color. The idea is that if you combine this example with the example 3 (data visualization), you can locate the bulding in which energy consumption is too high.
+The example is based on the babylonjs-playground's, simple changes got made on the axis length and color. The idea is that if you combine this example with the example 3 (data visualization), you can locate the building in which energy consumption is too high.
