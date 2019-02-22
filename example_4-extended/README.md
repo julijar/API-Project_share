@@ -15,4 +15,4 @@ Spinning sun rays is based on the concept of meditation. Template use from Babyl
 
 * babylon.JS Hypnotizing leader (https://www.babylonjs-playground.com/#VUJG1#1)
 
-The creation of the shapes and rotation of them is based on the Hypnotyzing leader example of the babylonjs-playground, with some small changes applied on the codes functions and and css properties.
+The creation of the shapes and rotation of them is based on the Hypnotyzing leader example of the babylonjs-playground, with some changes applied on the codes functions and and css properties.
